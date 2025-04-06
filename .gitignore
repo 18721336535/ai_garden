@@ -33,6 +33,5 @@ build/
 .vscode/
 
 ui_garden/node_modules/
-
 logs/
 *.log
