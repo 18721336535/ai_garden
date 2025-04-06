@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Video Stream</title>
+</head>
+<body>
+<canvas id="videoCanvas" width="640" height="480"></canvas>
+
+<script>
+        const canvas = document.getElementById('videoCanvas');
+        const ctx = canvas.getContext('2d');
+        let ws;
+
+        function connect() {
+            ws = new WebSocket('ws://localhost:8080/video-stream');
+
+            ws.binaryType = 'arraybuffer';
+
+            ws.onmessage = function(event) {
+                const blob = new Blob([event.data], { type: 'image/jpeg' });
+                const url = URL.createObjectURL(blob);
+
+                const img = new Image();
+                img.onload = function() {
+                    ctx.drawImage(img, 0, 0);
+                    URL.revokeObjectURL(url);
+                };
+                img.src = url;
+            };
+        }
+
+        // 初始化连接
+        connect();
+
+        // 断线重连机制
+        setInterval(() => {
+            if (!ws || ws.readyState === WebSocket.CLOSED) {
+                connect();
+            }
+        }, 1000);
+    </script>
+</body>
+</html>

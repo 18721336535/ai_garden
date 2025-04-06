@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>Video Stream</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #f0f8ff; /* Light blue background */
+            color: #333; /* Dark gray text */
+        }
+
+        .container {
+            width: 100%;
+            max-width: 640px;
+            padding: 10px;
+            box-sizing: border-box;
+            background-color: #ffffff; /* White background for container */
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        #videoCanvas {
+            width: 100%;
+            height: 50vh; /* 50% of the viewport height */
+            border: 4px solid #333; /* Dark gray border */
+            margin: 40px 60px 0 60px; /* Increased margin */
+            box-sizing: border-box; /* Ensure padding and border are included in width */
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            margin-top: 10px;
+        }
+
+        .controls button {
+            margin: 0 10px;
+            background-color: #007bff; /* Blue background for buttons */
+            color: #ffffff; /* White text for buttons */
+            border: none;
+            width: 50%;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .controls button:hover {
+            background-color: #0056b3; /* Darker blue on hover */
+        }
+
+        .controls button.active {
+            background-color: #28a745; /* Green when active */
+        }
+
+        .title {
+            text-align: center;
+            margin-bottom: 20px; /* Increased margin */
+            color: #333; /* Dark gray text */
+        }
+
+        .form-control {
+            width: 48%; /* Each input takes up half the row */
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ced4da;
+            border-radius: 5px;
+            height: 38px; /* Same height as button */
+        }
+
+        .btn-primary {
+            background-color: #007bff; /* Blue background for primary buttons */
+            color: #ffffff; /* White text for primary buttons */
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            width: 24%; /* Half the width of the input */
+            height: 38px; /* Same height as input */
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3; /* Darker blue on hover */
+        }
+    </style>
+</head>
+<body>
+<div class="title">
+    <h1>我的小花园</h1>
+</div>
+<div class="container">
+    <input
+            type="text"
+            id="name"
+            placeholder="Your Name"
+    />
+    <button
+            id="connectButton"
+            type="button"
+            onclick="connect()"
+    >
+        Connect
+    </button>
+</div>
+<canvas id="videoCanvas" width="640" height="480"></canvas>
+<div class="controls">
+    <button id="waterToggle" type="button" class="btn btn-primary" onclick="toggleWater()">
+        浇水开关关
+    </button>
+    <button id="coolingToggle" type="button" class="btn btn-primary" onclick="toggleCooling()">
+        降温开关关
+    </button>
+</div>
+
+<!-- Custom JavaScript -->
+<script src="js/videoStream.js"></script>
+<script>
+        function toggleWater() {
+            const button = document.getElementById('waterToggle');
+            button.classList.toggle('active');
+            if (button.classList.contains('active')) {
+                button.textContent = '浇水开关开';
+            } else {
+                button.textContent = '浇水开关关';
+            }
+        }
+
+        function toggleCooling() {
+            const button = document.getElementById('coolingToggle');
+            button.classList.toggle('active');
+            if (button.classList.contains('active')) {
+                button.textContent = '降温开关开';
+            } else {
+                button.textContent = '降温开关关';
+            }
+        }
+    </script>
+</body>
+</html>

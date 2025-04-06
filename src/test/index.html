@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Real-Time Video</title>
+</head>
+<body>
+<img id="videoStream" src="" alt="Video Stream">
+
+<script>
+        const img = document.getElementById('videoStream');
+        let lastUpdate = 0;
+        const updateInterval = 1000; // 1 FPS
+
+        function updateFrame() {
+            const now = Date.now();
+            if (now - lastUpdate >= updateInterval) {
+                fetch('/video?' + new Date().getTime())
+                    .then(response => response.blob())
+                    .then(blob => {
+                        const url = URL.createObjectURL(blob);
+                        img.src = url;
+                        URL.revokeObjectURL(url); // 释放内存
+                        lastUpdate = now;
+                    })
+                    .catch(error => {
+                        console.error('Error fetching video frame:', error);
+                    });
+            }
+            requestAnimationFrame(updateFrame);
+        }
+
+        // 启动视频流
+        updateFrame();
+    </script>
+</body>
+</html>

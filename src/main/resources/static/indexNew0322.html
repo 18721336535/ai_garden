@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>Video Stream</title>
+    <style>
+        body {
+            font-size: 0.5em;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #f0f8ff; /* Light blue background */
+            color: #333; /* Dark gray text */
+        }
+        .container {
+            width: 100%;
+            max-width: 640px;
+            padding: 10px;
+            box-sizing: border-box;
+            background-color: #ffffff; /* White background for container */
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        #videoCanvas {
+            width: 100%;
+            height: 50vh; /* 50% of the viewport height */
+            border: 1px solid #333; /* Dark gray border */
+            margin: 10px 10px 10 10px; /* Increased margin */
+            box-sizing: border-box; /* Ensure padding and border are included in width */
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            margin-top: 10px;
+        }
+
+        .controls button {
+            margin: 0 10px;
+            background-color: #007bff; /* Blue background for buttons */
+            color: #ffffff; /* White text for buttons */
+            border: none;
+            width: 50%;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .controls button:hover {
+            background-color: #0056b3; /* Darker blue on hover */
+        }
+
+        .controls button.active {
+            background-color: #28a745; /* Green when active */
+        }
+
+        .container button.active {
+            background-color: #28a745; /* Green when active */
+        }
+        .title {
+            font-size: 2em;
+            text-align: center;
+            margin-bottom: 20px; /* Increased margin */
+            color: #333; /* Dark gray text */
+        }
+
+        .form-control {
+            width: 48%; /* Each input takes up half the row */
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ced4da;
+            border-radius: 5px;
+            height: 38px; /* Same height as button */
+        }
+
+        .btn-primary {
+            background-color: #007bff; /* Blue background for primary buttons */
+            color: #ffffff; /* White text for primary buttons */
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            width: 24%; /* Half the width of the input */
+            height: 38px; /* Same height as input */
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3; /* Darker blue on hover */
+        }
+
+        /* Table styles */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+
+        .lab-01 {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+         .lab-01 {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+<div class="title">
+    <h3>我的小花园</h3>
+</div>
+<div class="container">
+    <label class="lab-01">上海市X区X街道X支路1号地块</label>
+    <button id="connectButton" type="button"  class="btn btn-primary" onclick="connect()">
+        监视开/关
+    </button>
+</div>
+<canvas id="videoCanvas" width="640" height="480"></canvas>
+<div class="controls">
+    <button id="waterToggle" type="button" class="btn btn-primary" onclick="toggleWater()">
+        浇水开关关
+    </button>
+    <button id="coolingToggle" type="button" class="btn btn-primary" onclick="toggleCooling()">
+        降温开关关
+    </button>
+</div>
+
+<!-- Table for sensor data -->
+<table id="sensorDataTable">
+    <thead>
+    <tr>
+        <th>编号</th>
+        <th>环境名称</th>
+        <th>数值</th>
+        <th>状态</th>
+    </tr>
+    </thead>
+    <tbody>
+    <!-- Data rows will be inserted here -->
+    </tbody>
+</table>
+
+<!-- Custom JavaScript -->
+<script src="js/videoStream.js"></script>
+<script>
+    function toggleWater() {
+        const button = document.getElementById('waterToggle');
+        button.classList.toggle('active');
+        const command = button.classList.contains('active') ? 'ON' : 'OFF';
+        sendCommand(command);
+        if (button.classList.contains('active')) {
+            button.textContent = '浇水开关开';
+        } else {
+            button.textContent = '浇水开关关';
+        }
+    }
+
+    function toggleCooling() {
+        const button = document.getElementById('coolingToggle');
+        button.classList.toggle('active');
+        const command = button.classList.contains('active') ? 'COOLING-ON' : 'COOLING-OFF';
+        sendCommand(command);
+        if (button.classList.contains('active')) {
+            button.textContent = '降温开关开';
+        } else {
+            button.textContent = '降温开关关';
+        }
+    }
+
+    // Function to send command to the backend
+    function sendCommand(cmd) {
+        fetch(`/manage/iot/machine/${cmd}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Success:', data);
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+        });
+    }
+
+    // Function to update the table with sensor data
+    function updateTable(data) {
+        const tableBody = document.querySelector("#sensorDataTable tbody");
+        tableBody.innerHTML = ""; // Clear existing data
+
+        // Add humidity data row
+        const humidityRow = document.createElement("tr");
+        humidityRow.innerHTML = `
+            <td>1</td>
+            <td>湿度</td>
+            <td>${data.soilMoisture}</td>
+            <td>${data.status}</td>
+        `;
+        tableBody.appendChild(humidityRow);
+
+        // Add light intensity data row
+        const lightIntensityRow = document.createElement("tr");
+        lightIntensityRow.innerHTML = `
+            <td>2</td>
+            <td>光照强度</td>
+            <td>${data.lightIntensity}</td>
+            <td>${data.status}</td>
+        `;
+        tableBody.appendChild(lightIntensityRow);
+    }
+
+    // Function to fetch sensor data
+    function fetchSensorData() {
+        const xhr = new XMLHttpRequest();
+        xhr.open('GET', '/manage/iot/machine/getSensorData', true);
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4 && xhr.status === 200) {
+                const response = JSON.parse(xhr.responseText);
+                updateTable(response.data);
+            }
+        };
+        xhr.send();
+    }
+
+    // Initial call to fetch sensor data
+    fetchSensorData();
+
+    // Set interval to fetch sensor data every 10 seconds
+    setInterval(fetchSensorData, 10000);
+</script>
+
+</script>
+</body>
+</html>

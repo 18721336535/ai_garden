@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Video Stream</title>
+    <style>        #videoCanvas {
+            width: 100%;
+            max-width: 640px;
+            display: block;
+            margin: 0 auto;
+        }
+        #loadingIndicator {
+            display: none;
+            text-align: center;
+            margin-top: 10px;
+        }
+        .loading {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+<h1 style="text-align: center;">Live Video Stream</h1>
+<canvas id="videoCanvas"></canvas>
+<div id="loadingIndicator" class="loading">Loading...</div>
+
+<script>
+ const videoCanvas = document.getElementById('videoCanvas');
+    const loadingIndicator = document.getElementById('loadingIndicator');
+    const frameInterval = 100; // 帧刷新间隔，单位为毫秒
+    let currentFrameUrl = null;
+let animationFrameId = null;
+        function fetchFrame() {
+    fetch('/video')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Failed to fetch frame: ' + response.statusText);
+            }
+            return response.blob();
+        })
+        .then(blob => {
+            const url = URL.createObjectURL(blob);
+            const img = new Image();
+            img.onload = () => {
+                if (currentFrameUrl) {
+                    URL.revokeObjectURL(currentFrameUrl); // 释放旧的 Blob URL
+                }
+                currentFrameUrl = url;
+
+                // 绘制图像到 canvas
+                videoCanvas.width = img.width;
+                videoCanvas.height = img.height;
+                const ctx = videoCanvas.getContext('2d');
+                ctx.drawImage(img, 0, 0);
+
+                // 确保 canvas 显示
+                videoCanvas.style.display = 'block';
+
+                // 请求下一帧
+                animationFrameId = requestAnimationFrame(fetchFrame);
+            };
+            img.onerror = (error) => {
+                console.error('Error loading image:', error);
+            };
+            img.src = url;
+        })
+        .catch(error => {
+            console.error('Error fetching frame:', error);
+        });
+}
+
+// 首次加载时立即获取一帧
+fetchFrame();
+
+// 使用 requestAnimationFrame 实现帧更新
+animationFrameId = requestAnimationFrame(fetchFrame);
+    </script>
+</body>
+</html>

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>Video Stream</title>
+    <style>
+        #videoCanvas {
+            border: 1px solid black;
+        }
+    </style>
+<!--    <link-->
+<!--            href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"-->
+<!--            rel="stylesheet"-->
+<!--    />-->
+</head>
+<body>
+<h1>Video Stream</h1>
+<canvas id="videoCanvas" width="640" height="480"></canvas>
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <input
+                    type="text"
+                    id="name"
+                    class="form-control mb-2"
+                    placeholder="Your Name"
+            />
+            <button
+                    id="connectButton"
+                    type="button"
+                    class="btn btn-primary mb-2"
+                    onclick="connect()"
+            >
+                Connect
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap JS CDN -->
+<!--<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>-->
+<!-- Custom JavaScript -->
+<script src="js/videoStream.js"></script>
+</body>
+</html>

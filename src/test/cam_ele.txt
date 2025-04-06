@@ -1,0 +1,1151 @@
+<html><head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width,initial-scale=1">
+        <title>ESP32 OV2460</title>
+        <style>
+            body {
+                font-family: Arial,Helvetica,sans-serif;
+                background: #181818;
+                color: #EFEFEF;
+                font-size: 16px
+            }
+
+            h2 {
+                font-size: 18px
+            }
+
+            section.main {
+                display: flex
+            }
+
+            #menu,section.main {
+                flex-direction: column
+            }
+
+            #menu {
+                display: none;
+                flex-wrap: nowrap;
+                min-width: 340px;
+                background: #363636;
+                padding: 8px;
+                border-radius: 4px;
+                margin-top: -10px;
+                margin-right: 10px;
+            }
+
+            #content {
+                display: flex;
+                flex-wrap: wrap;
+                align-items: stretch
+            }
+
+            figure {
+                padding: 0px;
+                margin: 0;
+                -webkit-margin-before: 0;
+                margin-block-start: 0;
+                -webkit-margin-after: 0;
+                margin-block-end: 0;
+                -webkit-margin-start: 0;
+                margin-inline-start: 0;
+                -webkit-margin-end: 0;
+                margin-inline-end: 0
+            }
+
+            figure img {
+                display: block;
+                width: 100%;
+                height: auto;
+                border-radius: 4px;
+                margin-top: 8px;
+            }
+
+            @media (min-width: 800px) and (orientation:landscape) {
+                #content {
+                    display:flex;
+                    flex-wrap: nowrap;
+                    align-items: stretch
+                }
+
+                figure img {
+                    display: block;
+                    max-width: 100%;
+                    max-height: calc(100vh - 40px);
+                    width: auto;
+                    height: auto
+                }
+
+                figure {
+                    padding: 0 0 0 0px;
+                    margin: 0;
+                    -webkit-margin-before: 0;
+                    margin-block-start: 0;
+                    -webkit-margin-after: 0;
+                    margin-block-end: 0;
+                    -webkit-margin-start: 0;
+                    margin-inline-start: 0;
+                    -webkit-margin-end: 0;
+                    margin-inline-end: 0
+                }
+            }
+
+            section#buttons {
+                display: flex;
+                flex-wrap: nowrap;
+                justify-content: space-between
+            }
+
+            #nav-toggle {
+                cursor: pointer;
+                display: block
+            }
+
+            #nav-toggle-cb {
+                outline: 0;
+                opacity: 0;
+                width: 0;
+                height: 0
+            }
+
+            #nav-toggle-cb:checked+#menu {
+                display: flex
+            }
+
+            .input-group {
+                display: flex;
+                flex-wrap: nowrap;
+                line-height: 22px;
+                margin: 5px 0
+            }
+
+            .input-group>label {
+                display: inline-block;
+                padding-right: 10px;
+                min-width: 47%
+            }
+
+            .input-group input,.input-group select {
+                flex-grow: 1
+            }
+
+            .range-max,.range-min {
+                display: inline-block;
+                padding: 0 5px
+            }
+
+            button, .button {
+                display: block;
+                margin: 5px;
+                padding: 0 12px;
+                border: 0;
+                line-height: 28px;
+                cursor: pointer;
+                color: #fff;
+                background: #ff3034;
+                border-radius: 5px;
+                font-size: 16px;
+                outline: 0
+            }
+
+            .save {
+                position: absolute;
+                right: 25px;
+                top: 0px;
+                height: 16px;
+                line-height: 16px;
+                padding: 0 4px;
+                text-decoration: none;
+                cursor: pointer
+            }
+
+            button:hover {
+                background: #ff494d
+            }
+
+            button:active {
+                background: #f21c21
+            }
+
+            button.disabled {
+                cursor: default;
+                background: #a0a0a0
+            }
+
+            input[type=range] {
+                -webkit-appearance: none;
+                width: 100%;
+                height: 22px;
+                background: #363636;
+                cursor: pointer;
+                margin: 0
+            }
+
+            input[type=range]:focus {
+                outline: 0
+            }
+
+            input[type=range]::-webkit-slider-runnable-track {
+                width: 100%;
+                height: 2px;
+                cursor: pointer;
+                background: #EFEFEF;
+                border-radius: 0;
+                border: 0 solid #EFEFEF
+            }
+
+            input[type=range]::-webkit-slider-thumb {
+                border: 1px solid rgba(0,0,30,0);
+                height: 22px;
+                width: 22px;
+                border-radius: 50px;
+                background: #ff3034;
+                cursor: pointer;
+                -webkit-appearance: none;
+                margin-top: -11.5px
+            }
+
+            input[type=range]:focus::-webkit-slider-runnable-track {
+                background: #EFEFEF
+            }
+
+            input[type=range]::-moz-range-track {
+                width: 100%;
+                height: 2px;
+                cursor: pointer;
+                background: #EFEFEF;
+                border-radius: 0;
+                border: 0 solid #EFEFEF
+            }
+
+            input[type=range]::-moz-range-thumb {
+                border: 1px solid rgba(0,0,30,0);
+                height: 22px;
+                width: 22px;
+                border-radius: 50px;
+                background: #ff3034;
+                cursor: pointer
+            }
+
+            input[type=range]::-ms-track {
+                width: 100%;
+                height: 2px;
+                cursor: pointer;
+                background: 0 0;
+                border-color: transparent;
+                color: transparent
+            }
+
+            input[type=range]::-ms-fill-lower {
+                background: #EFEFEF;
+                border: 0 solid #EFEFEF;
+                border-radius: 0
+            }
+
+            input[type=range]::-ms-fill-upper {
+                background: #EFEFEF;
+                border: 0 solid #EFEFEF;
+                border-radius: 0
+            }
+
+            input[type=range]::-ms-thumb {
+                border: 1px solid rgba(0,0,30,0);
+                height: 22px;
+                width: 22px;
+                border-radius: 50px;
+                background: #ff3034;
+                cursor: pointer;
+                height: 2px
+            }
+
+            input[type=range]:focus::-ms-fill-lower {
+                background: #EFEFEF
+            }
+
+            input[type=range]:focus::-ms-fill-upper {
+                background: #363636
+            }
+
+            .switch {
+                display: block;
+                position: relative;
+                line-height: 22px;
+                font-size: 16px;
+                height: 22px
+            }
+
+            .switch input {
+                outline: 0;
+                opacity: 0;
+                width: 0;
+                height: 0
+            }
+
+            .slider {
+                width: 50px;
+                height: 22px;
+                border-radius: 22px;
+                cursor: pointer;
+                background-color: grey
+            }
+
+            .slider,.slider:before {
+                display: inline-block;
+                transition: .4s
+            }
+
+            .slider:before {
+                position: relative;
+                content: "";
+                border-radius: 50%;
+                height: 16px;
+                width: 16px;
+                left: 4px;
+                top: 3px;
+                background-color: #fff
+            }
+
+            input:checked+.slider {
+                background-color: #ff3034
+            }
+
+            input:checked+.slider:before {
+                -webkit-transform: translateX(26px);
+                transform: translateX(26px)
+            }
+
+            select {
+                border: 1px solid #363636;
+                font-size: 14px;
+                height: 22px;
+                outline: 0;
+                border-radius: 5px
+            }
+
+            .image-container {
+                position: relative;
+                min-width: 160px
+            }
+
+            .close {
+                position: absolute;
+                right: 5px;
+                top: 5px;
+                background: #ff3034;
+                width: 16px;
+                height: 16px;
+                border-radius: 100px;
+                color: #fff;
+                text-align: center;
+                line-height: 18px;
+                cursor: pointer
+            }
+
+            .hidden {
+                display: none
+            }
+
+            input[type=text] {
+                border: 1px solid #363636;
+                font-size: 14px;
+                height: 20px;
+                margin: 1px;
+                outline: 0;
+                border-radius: 5px
+            }
+
+            .inline-button {
+                line-height: 20px;
+                margin: 2px;
+                padding: 1px 4px 2px 4px;
+            }
+
+            label.toggle-section-label {
+                cursor: pointer;
+                display: block
+            }
+
+            input.toggle-section-button {
+                outline: 0;
+                opacity: 0;
+                width: 0;
+                height: 0
+            }
+
+            input.toggle-section-button:checked+section.toggle-section {
+                display: none
+            }
+
+        </style>
+    </head>
+    <body>
+        <section class="main">
+            <div id="logo">
+                <label for="nav-toggle-cb" id="nav-toggle">☰&nbsp;&nbsp;Toggle OV2640 settings</label>
+            </div>
+            <div id="content">
+                <div id="sidebar">
+                    <input type="checkbox" id="nav-toggle-cb" checked="checked">
+                    <nav id="menu">
+
+                        <section id="xclk-section" class="nothidden">
+                            <div class="input-group" id="set-xclk-group">
+                                <label for="set-xclk">XCLK MHz</label>
+                                <div class="text">
+                                    <input id="xclk" type="text" minlength="1" maxlength="2" size="2" value="20">
+                                </div>
+                                <button class="inline-button" id="set-xclk">Set</button>
+                            </div>
+                        </section>
+
+                        <div class="input-group" id="framesize-group">
+                            <label for="framesize">Resolution</label>
+                            <select id="framesize" class="default-action">
+                                <!-- 2MP -->
+                                <option value="13">UXGA(1600x1200)</option>
+                                <option value="12">SXGA(1280x1024)</option>
+                                <option value="11">HD(1280x720)</option>
+                                <option value="10">XGA(1024x768)</option>
+                                <option value="9">SVGA(800x600)</option>
+                                <option value="8">VGA(640x480)</option>
+                                <option value="7">HVGA(480x320)</option>
+                                <option value="6">CIF(400x296)</option>
+                                <option value="5">QVGA(320x240)</option>
+                                <option value="4">240x240</option>
+                                <option value="3">HQVGA(240x176)</option>
+                                <option value="2">QCIF(176x144)</option>
+                                <option value="1">QQVGA(160x120)</option>
+                                <option value="0">96x96</option>
+                            </select>
+                        </div>
+                        <div class="input-group" id="quality-group">
+                            <label for="quality">Quality</label>
+                            <div class="range-min">4</div>
+                            <input type="range" id="quality" min="4" max="63" value="10" class="default-action">
+                            <div class="range-max">63</div>
+                        </div>
+                        <div class="input-group" id="brightness-group">
+                            <label for="brightness">Brightness</label>
+                            <div class="range-min">-2</div>
+                            <input type="range" id="brightness" min="-2" max="2" value="0" class="default-action">
+                            <div class="range-max">2</div>
+                        </div>
+                        <div class="input-group" id="contrast-group">
+                            <label for="contrast">Contrast</label>
+                            <div class="range-min">-2</div>
+                            <input type="range" id="contrast" min="-2" max="2" value="0" class="default-action">
+                            <div class="range-max">2</div>
+                        </div>
+                        <div class="input-group" id="saturation-group">
+                            <label for="saturation">Saturation</label>
+                            <div class="range-min">-2</div>
+                            <input type="range" id="saturation" min="-2" max="2" value="0" class="default-action">
+                            <div class="range-max">2</div>
+                        </div>
+                        <div class="input-group" id="special_effect-group">
+                            <label for="special_effect">Special Effect</label>
+                            <select id="special_effect" class="default-action">
+                                <option value="0" selected="selected">No Effect</option>
+                                <option value="1">Negative</option>
+                                <option value="2">Grayscale</option>
+                                <option value="3">Red Tint</option>
+                                <option value="4">Green Tint</option>
+                                <option value="5">Blue Tint</option>
+                                <option value="6">Sepia</option>
+                            </select>
+                        </div>
+                        <div class="input-group" id="awb-group">
+                            <label for="awb">AWB</label>
+                            <div class="switch">
+                                <input id="awb" type="checkbox" class="default-action" checked="checked">
+                                <label class="slider" for="awb"></label>
+                            </div>
+                        </div>
+                        <div class="input-group" id="awb_gain-group">
+                            <label for="awb_gain">AWB Gain</label>
+                            <div class="switch">
+                                <input id="awb_gain" type="checkbox" class="default-action" checked="checked">
+                                <label class="slider" for="awb_gain"></label>
+                            </div>
+                        </div>
+                        <div class="input-group" id="wb_mode-group">
+                            <label for="wb_mode">WB Mode</label>
+                            <select id="wb_mode" class="default-action">
+                                <option value="0" selected="selected">Auto</option>
+                                <option value="1">Sunny</option>
+                                <option value="2">Cloudy</option>
+                                <option value="3">Office</option>
+                                <option value="4">Home</option>
+                            </select>
+                        </div>
+                        <div class="input-group" id="aec-group">
+                            <label for="aec">AEC SENSOR</label>
+                            <div class="switch">
+                                <input id="aec" type="checkbox" class="default-action" checked="checked">
+                                <label class="slider" for="aec"></label>
+                            </div>
+                        </div>
+                        <div class="input-group" id="aec2-group">
+                            <label for="aec2">AEC DSP</label>
+                            <div class="switch">
+                                <input id="aec2" type="checkbox" class="default-action" checked="checked">
+                                <label class="slider" for="aec2"></label>
+                            </div>
+                        </div>
+                        <div class="input-group" id="ae_level-group">
+                            <label for="ae_level">AE Level</label>
+                            <div class="range-min">-2</div>
+                            <input type="range" id="ae_level" min="-2" max="2" value="0" class="default-action">
+                            <div class="range-max">2</div>
+                        </div>
+                        <div class="input-group hidden" id="aec_value-group">
+                            <label for="aec_value">Exposure</label>
+                            <div class="range-min">0</div>
+                            <input type="range" id="aec_value" min="0" max="1200" value="204" class="default-action">
+                            <div class="range-max">1200</div>
+                        </div>
+                        <div class="input-group" id="agc-group">
+                            <label for="agc">AGC</label>
+                            <div class="switch">
+                                <input id="agc" type="checkbox" class="default-action" checked="checked">
+                                <label class="slider" for="agc"></label>
+                            </div>
+                        </div>
+                        <div class="input-group hidden" id="agc_gain-group">
+                            <label for="agc_gain">Gain</label>
+                            <div class="range-min">1x</div>
+                            <input type="range" id="agc_gain" min="0" max="30" value="5" class="default-action">
+                            <div class="range-max">31x</div>
+                        </div>
+                        <div class="input-group" id="gainceiling-group">
+                            <label for="gainceiling">Gain Ceiling</label>
+                            <div class="range-min">2x</div>
+                            <input type="range" id="gainceiling" min="0" max="6" value="0" class="default-action">
+                            <div class="range-max">128x</div>
+                        </div>
+                        <div class="input-group" id="bpc-group">
+                            <label for="bpc">BPC</label>
+                            <div class="switch">
+                                <input id="bpc" type="checkbox" class="default-action">
+                                <label class="slider" for="bpc"></label>
+                            </div>
+                        </div>
+                        <div class="input-group" id="wpc-group">
+                            <label for="wpc">WPC</label>
+                            <div class="switch">
+                                <input id="wpc" type="checkbox" class="default-action" checked="checked">
+                                <label class="slider" for="wpc"></label>
+                            </div>
+                        </div>
+                        <div class="input-group" id="raw_gma-group">
+                            <label for="raw_gma">Raw GMA</label>
+                            <div class="switch">
+                                <input id="raw_gma" type="checkbox" class="default-action" checked="checked">
+                                <label class="slider" for="raw_gma"></label>
+                            </div>
+                        </div>
+                        <div class="input-group" id="lenc-group">
+                            <label for="lenc">Lens Correction</label>
+                            <div class="switch">
+                                <input id="lenc" type="checkbox" class="default-action" checked="checked">
+                                <label class="slider" for="lenc"></label>
+                            </div>
+                        </div>
+                        <div class="input-group" id="hmirror-group">
+                            <label for="hmirror">H-Mirror</label>
+                            <div class="switch">
+                                <input id="hmirror" type="checkbox" class="default-action" checked="checked">
+                                <label class="slider" for="hmirror"></label>
+                            </div>
+                        </div>
+                        <div class="input-group" id="vflip-group">
+                            <label for="vflip">V-Flip</label>
+                            <div class="switch">
+                                <input id="vflip" type="checkbox" class="default-action" checked="checked">
+                                <label class="slider" for="vflip"></label>
+                            </div>
+                        </div>
+                        <div class="input-group" id="dcw-group">
+                            <label for="dcw">DCW (Downsize EN)</label>
+                            <div class="switch">
+                                <input id="dcw" type="checkbox" class="default-action" checked="checked">
+                                <label class="slider" for="dcw"></label>
+                            </div>
+                        </div>
+                        <div class="input-group" id="colorbar-group">
+                            <label for="colorbar">Color Bar</label>
+                            <div class="switch">
+                                <input id="colorbar" type="checkbox" class="default-action">
+                                <label class="slider" for="colorbar"></label>
+                            </div>
+                        </div>
+                        <div class="input-group" id="led-group">
+                          <label for="led_intensity">LED Intensity</label>
+                          <div class="range-min">0</div>
+                          <input type="range" id="led_intensity" min="0" max="255" value="0" class="default-action">
+                          <div class="range-max">255</div>
+                        </div>
+                        <div class="input-group" id="face_detect-group">
+                            <label for="face_detect">Face Detection</label>
+                            <div class="switch">
+                                <input id="face_detect" type="checkbox" class="default-action">
+                                <label class="slider" for="face_detect"></label>
+                            </div>
+                        </div>
+                        <div class="input-group" id="face_recognize-group">
+                            <label for="face_recognize">Face Recognition</label>
+                            <div class="switch">
+                                <input id="face_recognize" type="checkbox" class="default-action">
+                                <label class="slider" for="face_recognize"></label>
+                            </div>
+                        </div>
+                        <section id="buttons">
+                            <button id="get-still">Get Still</button>
+                            <button id="toggle-stream">Stop Stream</button>
+                            <button id="face_enroll" class="disabled" disabled="">Enroll Face</button>
+                        </section>
+
+                        <div style="margin-top: 8px;"><center><span style="font-weight: bold;">Advanced Settings</span></center></div>
+                        <hr style="width:100%">
+                        <label for="nav-toggle-reg" class="toggle-section-label">☰&nbsp;&nbsp;Register Get/Set</label><input type="checkbox" id="nav-toggle-reg" class="hidden toggle-section-button" checked="checked">
+                        <section class="toggle-section">
+                            <!--h4>Set Register</h4-->
+                            <div class="input-group" id="set-reg-group">
+                                <label for="set-reg">Reg, Mask, Value</label>
+                                <div class="text">
+                                    <input id="reg-addr" type="text" minlength="4" maxlength="6" size="6" value="0x111">
+                                </div>
+                                <div class="text">
+                                    <input id="reg-mask" type="text" minlength="4" maxlength="4" size="4" value="0x80">
+                                </div>
+                                <div class="text">
+                                    <input id="reg-value" type="text" minlength="4" maxlength="4" size="4" value="0x80">
+                                </div>
+                                <button class="inline-button" id="set-reg">Set</button>
+                            </div>
+                            <hr style="width:50%">
+                            <!--h4>Get Register</h4-->
+                            <div class="input-group" id="get-reg-group">
+                                <label for="get-reg">Reg, Mask</label>
+                                <div class="text">
+                                    <input id="get-reg-addr" type="text" minlength="4" maxlength="6" size="6" value="0x111">
+                                </div>
+                                <div class="text">
+                                    <input id="get-reg-mask" type="text" minlength="4" maxlength="6" size="6" value="0x80">
+                                </div>
+                                <button class="inline-button" id="get-reg">Get</button>
+                            </div>
+                            <div class="input-group">
+                                <label for="get-reg-value">Value</label>
+                                <div class="text">
+                                    <span id="get-reg-value">0x1234</span>
+                                </div>
+                            </div>
+                        </section>
+                        <hr style="width:100%">
+                        <label for="nav-toggle-2640pll" class="toggle-section-label">☰&nbsp;&nbsp;CLK</label><input type="checkbox" id="nav-toggle-2640pll" class="hidden toggle-section-button" checked="checked">
+                        <section class="toggle-section">
+
+                            <div class="input-group"><label for="2640pll1">CLK 2X</label><div class="switch"><input id="2640pll1" type="checkbox" class="reg-action" reg="0x111" offset="7" mask="0x01"><label class="slider" for="2640pll1"></label></div></div>
+
+                            <div class="input-group"><label for="2640pll3">CLK DIV</label><div class="text">0<input id="2640pll3" type="text" minlength="1" maxlength="2" size="2" value="1" class="reg-action" reg="0x111" offset="0" mask="0x3f">63</div></div>
+                            <div class="input-group"><label for="2640pll5">Auto PCLK</label><div class="switch"><input id="2640pll5" type="checkbox" class="reg-action" reg="0xd3" offset="7" mask="0x01"><label class="slider" for="2640pll5"></label></div></div>
+                            <div class="input-group"><label for="2640pll4">PCLK DIV</label><div class="text">0<input id="2640pll4" type="text" minlength="1" maxlength="3" size="3" value="4" class="reg-action" reg="0xd3" offset="0" mask="0x7f">127</div></div>
+
+                        </section>
+                        <hr style="width:100%">
+                        <label for="nav-toggle-win" class="toggle-section-label">☰&nbsp;&nbsp;Window</label><input type="checkbox" id="nav-toggle-win" class="hidden toggle-section-button" checked="checked">
+                        <section class="toggle-section">
+
+                            <div class="input-group">
+                                <label for="start-x">Sensor Resolution</label><select id="start-x">
+                                    <option value="2">CIF (400x296)</option>
+                                    <option value="1">SVGA (800x600)</option>
+                                    <option value="0" selected="selected">UXGA (1600x1200)</option>
+                                </select>
+                            </div>
+
+                            <div class="input-group" id="set-offset-res-group">
+                                <label for="offset-x">Offset</label>
+                                <div class="text">
+                                    X:<input id="offset-x" type="text" minlength="1" maxlength="3" size="6" value="400">
+                                </div>
+                                <div class="text">
+                                    Y:<input id="offset-y" type="text" minlength="1" maxlength="3" size="6" value="300">
+                                </div>
+                            </div>
+                            <div class="input-group" id="set-total-res-group">
+                                <label for="total-x">Window Size</label>
+                                <div class="text">
+                                    X:<input id="total-x" type="text" minlength="1" maxlength="4" size="6" value="800">
+                                </div>
+                                <div class="text">
+                                    Y:<input id="total-y" type="text" minlength="1" maxlength="4" size="6" value="600">
+                                </div>
+                            </div>
+                            <div class="input-group" id="set-output-res-group">
+                                <label for="output-x">Output Size</label>
+                                <div class="text">
+                                    X:<input id="output-x" type="text" minlength="1" maxlength="4" size="6" value="320">
+                                </div>
+                                <div class="text">
+                                    Y:<input id="output-y" type="text" minlength="1" maxlength="4" size="6" value="240">
+                                </div>
+                            </div>
+                            <button id="set-resolution">Set Resolution</button>
+                        </section>
+
+
+
+                    </nav>
+                </div>
+                <figure>
+                    <div id="stream-container" class="image-container">
+                        <a id="save-still" href="data:image/jpeg;base64,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" class="button save" download="20250214145143.jpg">Save</a>
+                        <div class="close" id="close-stream">×</div>
+                        <img id="stream" src="http://192.168.1.2:81/stream" crossorigin="">
+                    </div>
+                </figure>
+            </div>
+        </section>
+        <script>
+document.addEventListener('DOMContentLoaded', function (event) {
+  var baseHost = document.location.origin
+  var streamUrl = baseHost + ':81'
+
+  function fetchUrl(url, cb){
+    fetch(url)
+      .then(function (response) {
+        if (response.status !== 200) {
+          cb(response.status, response.statusText);
+        } else {
+          response.text().then(function(data){
+            cb(200, data);
+          }).catch(function(err) {
+            cb(-1, err);
+          });
+        }
+      })
+      .catch(function(err) {
+        cb(-1, err);
+      });
+  }
+
+  function setReg(reg, offset, mask, value, cb){
+    //console.log('Set Reg', '0x'+reg.toString(16), offset, '0x'+mask.toString(16), '0x'+value.toString(16), '('+value+')');
+    value = (value & mask) << offset;
+    mask = mask << offset;
+    fetchUrl(`${baseHost}/reg?reg=${reg}&mask=${mask}&val=${value}`, cb);
+  }
+
+  function getReg(reg, offset, mask, cb){
+    mask = mask << offset;
+    fetchUrl(`${baseHost}/greg?reg=${reg}&mask=${mask}`, function(code, txt){
+      let value = 0;
+      if(code == 200){
+        value = parseInt(txt);
+        value = (value & mask) >> offset;
+        txt = ''+value;
+      }
+      cb(code, txt);
+    });
+  }
+
+  function setXclk(xclk, cb){
+    fetchUrl(`${baseHost}/xclk?xclk=${xclk}`, cb);
+  }
+
+  function setWindow(start_x, start_y, end_x, end_y, offset_x, offset_y, total_x, total_y, output_x, output_y, scaling, binning, cb){
+    fetchUrl(`${baseHost}/resolution?sx=${start_x}&sy=${start_y}&ex=${end_x}&ey=${end_y}&offx=${offset_x}&offy=${offset_y}&tx=${total_x}&ty=${total_y}&ox=${output_x}&oy=${output_y}&scale=${scaling}&binning=${binning}`, cb);
+  }
+
+  const setRegButton = document.getElementById('set-reg')
+  setRegButton.onclick = () => {
+    let reg = parseInt(document.getElementById('reg-addr').value);
+    let mask = parseInt(document.getElementById('reg-mask').value);
+    let value = parseInt(document.getElementById('reg-value').value);
+
+    setReg(reg, 0, mask, value, function(code, txt){
+      if(code != 200){
+        alert('Error['+code+']: '+txt);
+      }
+    });
+  }
+
+  const getRegButton = document.getElementById('get-reg')
+  getRegButton.onclick = () => {
+    let reg = parseInt(document.getElementById('get-reg-addr').value);
+    let mask = parseInt(document.getElementById('get-reg-mask').value);
+    let value = document.getElementById('get-reg-value');
+
+    getReg(reg, 0, mask, function(code, txt){
+      if(code != 200){
+        value.innerHTML = 'Error['+code+']: '+txt;
+      } else {
+        value.innerHTML = '0x'+parseInt(txt).toString(16)+' ('+txt+')';
+      }
+    });
+  }
+
+  const setXclkButton = document.getElementById('set-xclk')
+  setXclkButton.onclick = () => {
+    let xclk = parseInt(document.getElementById('xclk').value);
+
+    setXclk(xclk, function(code, txt){
+      if(code != 200){
+        alert('Error['+code+']: '+txt);
+      }
+    });
+  }
+
+  const setResButton = document.getElementById('set-resolution')
+  setResButton.onclick = () => {
+    let start_x = parseInt(document.getElementById('start-x').value);
+    let offset_x = parseInt(document.getElementById('offset-x').value);
+    let offset_y = parseInt(document.getElementById('offset-y').value);
+    let total_x = parseInt(document.getElementById('total-x').value);
+    let total_y = parseInt(document.getElementById('total-y').value);
+    let output_x = parseInt(document.getElementById('output-x').value);
+    let output_y = parseInt(document.getElementById('output-y').value);
+
+    setWindow(start_x, 0, 0, 0, offset_x, offset_y, total_x, total_y, output_x, output_y, false, false, function(code, txt){
+      if(code != 200){
+        alert('Error['+code+']: '+txt);
+      }
+    });
+  }
+
+  const setRegValue = (el) => {
+    let reg = el.attributes.reg?parseInt(el.attributes.reg.nodeValue):0;
+    let offset = el.attributes.offset?parseInt(el.attributes.offset.nodeValue):0;
+    let mask = el.attributes.mask?parseInt(el.attributes.mask.nodeValue):255;
+    let value = 0;
+    switch (el.type) {
+      case 'checkbox':
+        value = el.checked ? mask : 0;
+        break;
+      case 'range':
+      case 'text':
+      case 'select-one':
+        value = el.value;
+        break
+      default:
+        return;
+    }
+
+    setReg(reg, offset, mask, value, function(code, txt){
+      if(code != 200){
+        alert('Error['+code+']: '+txt);
+      }
+    });
+  }
+
+  // Attach on change action for register elements
+  document
+    .querySelectorAll('.reg-action')
+    .forEach(el => {
+        if (el.type === 'text') {
+            el.onkeyup = function(e){
+                if(e.keyCode == 13){
+                    setRegValue(el);
+                }
+            }
+        } else {
+            el.onchange = () => setRegValue(el)
+        }
+    })
+
+
+  const updateRegValue = (el, value, updateRemote) => {
+    let initialValue;
+    let offset = el.attributes.offset?parseInt(el.attributes.offset.nodeValue):0;
+    let mask = (el.attributes.mask?parseInt(el.attributes.mask.nodeValue):255) << offset;
+    value = (value & mask) >> offset;
+    if (el.type === 'checkbox') {
+      initialValue = el.checked
+      value = !!value
+      el.checked = value
+    } else {
+      initialValue = el.value
+      el.value = value
+    }
+  }
+
+
+  const printReg = (el) => {
+    let reg = el.attributes.reg?parseInt(el.attributes.reg.nodeValue):0;
+    let offset = el.attributes.offset?parseInt(el.attributes.offset.nodeValue):0;
+    let mask = el.attributes.mask?parseInt(el.attributes.mask.nodeValue):255;
+    let value = 0;
+    switch (el.type) {
+      case 'checkbox':
+        value = el.checked ? mask : 0;
+        break;
+      case 'range':
+      case 'select-one':
+        value = el.value;
+        break
+      default:
+        return;
+    }
+    value = (value & mask) << offset;
+    return '0x'+reg.toString(16)+', 0x'+value.toString(16);
+  }
+
+
+
+  const hide = el => {
+    el.classList.add('hidden')
+  }
+  const show = el => {
+    el.classList.remove('hidden')
+  }
+
+  const disable = el => {
+    el.classList.add('disabled')
+    el.disabled = true
+  }
+
+  const enable = el => {
+    el.classList.remove('disabled')
+    el.disabled = false
+  }
+
+  const updateValue = (el, value, updateRemote) => {
+    updateRemote = updateRemote == null ? true : updateRemote
+    let initialValue
+    if (el.type === 'checkbox') {
+      initialValue = el.checked
+      value = !!value
+      el.checked = value
+    } else {
+      initialValue = el.value
+      el.value = value
+    }
+
+    if (updateRemote && initialValue !== value) {
+      updateConfig(el);
+    } else if(!updateRemote){
+      if(el.id === "aec"){
+        value ? hide(exposure) : show(exposure)
+      } else if(el.id === "agc"){
+        if (value) {
+          show(gainCeiling)
+          hide(agcGain)
+        } else {
+          hide(gainCeiling)
+          show(agcGain)
+        }
+      } else if(el.id === "awb_gain"){
+        value ? show(wb) : hide(wb)
+      } else if(el.id === "face_recognize"){
+        value ? enable(enrollButton) : disable(enrollButton)
+      } else if(el.id == "led_intensity"){
+        value > -1 ? show(ledGroup) : hide(ledGroup)
+      }
+    }
+  }
+
+  function updateConfig (el) {
+    let value
+    switch (el.type) {
+      case 'checkbox':
+        value = el.checked ? 1 : 0
+        break
+      case 'range':
+      case 'select-one':
+        value = el.value
+        break
+      case 'button':
+      case 'submit':
+        value = '1'
+        break
+      default:
+        return
+    }
+
+    const query = `${baseHost}/control?var=${el.id}&val=${value}`
+
+    fetch(query)
+      .then(response => {
+        console.log(`request to ${query} finished, status: ${response.status}`)
+      })
+  }
+
+  document
+    .querySelectorAll('.close')
+    .forEach(el => {
+      el.onclick = () => {
+        hide(el.parentNode)
+      }
+    })
+
+  // read initial values
+  fetch(`${baseHost}/status`)
+    .then(function (response) {
+      return response.json()
+    })
+    .then(function (state) {
+      document
+        .querySelectorAll('.default-action')
+        .forEach(el => {
+          updateValue(el, state[el.id], false)
+        })
+      document
+        .querySelectorAll('.reg-action')
+        .forEach(el => {
+            let reg = el.attributes.reg?parseInt(el.attributes.reg.nodeValue):0;
+            if(reg == 0){
+              return;
+            }
+            updateRegValue(el, state['0x'+reg.toString(16)], false)
+        })
+    })
+
+  const view = document.getElementById('stream')
+  const viewContainer = document.getElementById('stream-container')
+  const stillButton = document.getElementById('get-still')
+  const streamButton = document.getElementById('toggle-stream')
+  const enrollButton = document.getElementById('face_enroll')
+  const closeButton = document.getElementById('close-stream')
+  const saveButton = document.getElementById('save-still')
+  const ledGroup = document.getElementById('led-group')
+
+  const stopStream = () => {
+    window.stop();
+    streamButton.innerHTML = 'Start Stream'
+  }
+
+  const startStream = () => {
+    view.src = `${streamUrl}/stream`
+    show(viewContainer)
+    streamButton.innerHTML = 'Stop Stream'
+  }
+
+  // Attach actions to buttons
+  stillButton.onclick = () => {
+    stopStream()
+    view.src = `${baseHost}/capture?_cb=${Date.now()}`
+    show(viewContainer)
+  }
+
+  closeButton.onclick = () => {
+    stopStream()
+    hide(viewContainer)
+  }
+
+  streamButton.onclick = () => {
+    const streamEnabled = streamButton.innerHTML === 'Stop Stream'
+    if (streamEnabled) {
+      stopStream()
+    } else {
+      startStream()
+    }
+  }
+
+  enrollButton.onclick = () => {
+    updateConfig(enrollButton)
+  }
+
+  saveButton.onclick = () => {
+    var canvas = document.createElement("canvas");
+    canvas.width = view.width;
+    canvas.height = view.height;
+    document.body.appendChild(canvas);
+    var context = canvas.getContext('2d');
+    context.drawImage(view,0,0);
+    try {
+      var dataURL = canvas.toDataURL('image/jpeg');
+      saveButton.href = dataURL;
+      var d = new Date();
+      saveButton.download = d.getFullYear() + ("0"+(d.getMonth()+1)).slice(-2) + ("0" + d.getDate()).slice(-2) + ("0" + d.getHours()).slice(-2) + ("0" + d.getMinutes()).slice(-2) + ("0" + d.getSeconds()).slice(-2) + ".jpg";
+    } catch (e) {
+      console.error(e);
+    }
+    canvas.parentNode.removeChild(canvas);
+  }
+
+  // Attach default on change action
+  document
+    .querySelectorAll('.default-action')
+    .forEach(el => {
+      el.onchange = () => updateConfig(el)
+    })
+
+  // Custom actions
+  // Gain
+  const agc = document.getElementById('agc')
+  const agcGain = document.getElementById('agc_gain-group')
+  const gainCeiling = document.getElementById('gainceiling-group')
+  agc.onchange = () => {
+    updateConfig(agc)
+    if (agc.checked) {
+      show(gainCeiling)
+      hide(agcGain)
+    } else {
+      hide(gainCeiling)
+      show(agcGain)
+    }
+  }
+
+  // Exposure
+  const aec = document.getElementById('aec')
+  const exposure = document.getElementById('aec_value-group')
+  aec.onchange = () => {
+    updateConfig(aec)
+    aec.checked ? hide(exposure) : show(exposure)
+  }
+
+  // AWB
+  const awb = document.getElementById('awb_gain')
+  const wb = document.getElementById('wb_mode-group')
+  awb.onchange = () => {
+    updateConfig(awb)
+    awb.checked ? show(wb) : hide(wb)
+  }
+
+  // Detection and framesize
+  const detect = document.getElementById('face_detect')
+  const recognize = document.getElementById('face_recognize')
+  const framesize = document.getElementById('framesize')
+
+  framesize.onchange = () => {
+    updateConfig(framesize)
+    if (framesize.value > 5) {
+      updateValue(detect, false)
+      updateValue(recognize, false)
+    }
+  }
+
+  detect.onchange = () => {
+    if (framesize.value > 5) {
+      alert("Please select CIF or lower resolution before enabling this feature!");
+      updateValue(detect, false)
+      return;
+    }
+    updateConfig(detect)
+    if (!detect.checked) {
+      disable(enrollButton)
+      updateValue(recognize, false)
+    }
+  }
+
+  recognize.onchange = () => {
+    if (framesize.value > 5) {
+      alert("Please select CIF or lower resolution before enabling this feature!");
+      updateValue(recognize, false)
+      return;
+    }
+    updateConfig(recognize)
+    if (recognize.checked) {
+      enable(enrollButton)
+      updateValue(detect, true)
+    } else {
+      disable(enrollButton)
+    }
+  }
+})
+
+        </script>
+    
+
+</body></html>
